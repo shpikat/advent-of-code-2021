@@ -29,27 +29,17 @@ func part2(input string) (int, error) {
 	splits := strings.Split(strings.TrimSpace(input), "\n")
 
 	const windowSize = 3
-	windowSum := 0
 	values := make([]int, len(splits))
 	count := 0
-	for i := 0; i < windowSize; i++ {
-		value, err := strconv.Atoi(splits[i])
-		if err != nil {
-			return 0, err
-		}
-		values[i] = value
-		windowSum += value
-	}
-	for i := windowSize; i < len(splits); i++ {
-		value, err := strconv.Atoi(splits[i])
+	for i, s := range splits {
+		value, err := strconv.Atoi(s)
 		if err != nil {
 			return 0, err
 		}
 		values[i] = value
 
-		previous := windowSum
-		windowSum += value - values[i-windowSize]
-		if windowSum > previous {
+		indexToRemove := i - windowSize
+		if indexToRemove >= 0 && value > values[indexToRemove] {
 			count++
 		}
 	}
