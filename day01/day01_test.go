@@ -6,7 +6,8 @@ import (
 	"github.com/shpikat/advent-of-code-2021/internal"
 )
 
-const sample1 = `
+const (
+	sample1 = `
 199
 200
 208
@@ -19,14 +20,21 @@ const sample1 = `
 263
 `
 
+	part1Sample = 7
+	part1Answer = 1527
+
+	part2Sample = 5
+	part2Answer = 1575
+)
+
 func TestPart1(t *testing.T) {
 	testCases := []struct {
 		name  string
 		input string
 		want  int
 	}{
-		{"sample 1", sample1, 7},
-		{"puzzle input", internal.ReadInput(t, "./testdata/input.txt"), 1527},
+		{"sample 1", sample1, part1Sample},
+		{"puzzle input", internal.ReadInput(t, "./testdata/input.txt"), part1Answer},
 	}
 
 	for _, tc := range testCases {
@@ -49,8 +57,8 @@ func TestPart2(t *testing.T) {
 		input string
 		want  int
 	}{
-		{"sample 1", sample1, 5},
-		{"puzzle input", internal.ReadInput(t, "./testdata/input.txt"), 1575},
+		{"sample 1", sample1, part2Sample},
+		{"puzzle input", internal.ReadInput(t, "./testdata/input.txt"), part2Answer},
 	}
 
 	for _, tc := range testCases {
