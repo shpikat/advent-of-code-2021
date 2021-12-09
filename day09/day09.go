@@ -1,7 +1,7 @@
 package day09
 
 import (
-	"sort"
+	"container/heap"
 	"strings"
 )
 
@@ -42,8 +42,7 @@ func part2(input string) (int, error) {
 		},
 	}
 
-	preAllocationLength := len(points)
-	basins := make([]int, 0, preAllocationLength)
+	largestBasins := NewTopK(3)
 	for i := range points {
 		for j := range points[i] {
 			current := Index{i, j}
@@ -52,7 +51,7 @@ func part2(input string) (int, error) {
 				stack.Push(current)
 				current.set(points, 9)
 				size := 1
-				for stack.HasMore() {
+				for len(stack) > 0 {
 					next := stack.MustPop()
 					for _, f := range neighbours {
 						neighbour := f(next)
@@ -66,16 +65,14 @@ func part2(input string) (int, error) {
 						}
 					}
 				}
-				basins = append(basins, size)
+				largestBasins.Add(size)
 			}
 		}
 	}
 
-	//TODO  implement selection algorithm
-	sort.Ints(basins)
 	mul := 1
-	for _, basin := range basins[len(basins)-3:] {
-		mul *= basin
+	for _, v := range largestBasins.Drain() {
+		mul *= v
 	}
 	return mul, nil
 }
@@ -96,26 +93,64 @@ func (v Index) within(points [][]int) bool {
 	return v.i >= 0 && v.j >= 0 && v.i < len(points) && v.j < len(points[v.i])
 }
 
-type Stack struct {
-	data []Index
-}
+type Stack []Index
 
 func NewStack() Stack {
-	return Stack{make([]Index, 0, 16)}
+	return make([]Index, 0, 16)
 }
 func (s *Stack) Push(v Index) {
-	s.data = append(s.data, v)
+	*s = append(*s, v)
 }
 
 func (s *Stack) MustPop() (next Index) {
-	last := len(s.data) - 1
-	next = s.data[last]
-	s.data = s.data[:last]
+	last := len(*s) - 1
+	next = (*s)[last]
+	*s = (*s)[:last]
 	return
 }
 
-func (s Stack) HasMore() bool {
-	return len(s.data) > 0
+type IntTopK []int
+
+func NewTopK(k int) (topK IntTopK) {
+	topK = make([]int, 0, k+1)
+	heap.Init(&topK)
+	return
+}
+
+func (t *IntTopK) Add(x int) {
+	if len(*t) < 4 {
+		heap.Push(t, x)
+	} else {
+		// Implementation actually puts lower values on top, so we can easily replace it
+		(*t)[0] = x
+		heap.Fix(t, 0)
+	}
+}
+
+func (t *IntTopK) Drain() (topK []int) {
+	if len(*t) > 3 {
+		heap.Pop(t)
+	}
+	topK = make([]int, 0, 3)
+	for len(*t) > 0 {
+		topK = append(topK, heap.Pop(t).(int))
+	}
+	return topK
+}
+
+func (t IntTopK) Len() int           { return len(t) }
+func (t IntTopK) Less(i, j int) bool { return t[i] < t[j] }
+func (t IntTopK) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+
+func (t *IntTopK) Push(x interface{}) {
+	*t = append(*t, x.(int))
+}
+func (t *IntTopK) Pop() (element interface{}) {
+	old := *t
+	last := len(old) - 1
+	element = old[last]
+	*t = old[:last]
+	return
 }
 
 func readInput(input string) [][]int {
