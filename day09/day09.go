@@ -128,12 +128,12 @@ func (t *IntTopK) Add(x int) {
 }
 
 func (t *IntTopK) Drain() (topK []int) {
-	if len(*t) > 3 {
+	if len(*t) == cap(*t) {
 		heap.Pop(t)
 	}
-	topK = make([]int, 0, 3)
-	for len(*t) > 0 {
-		topK = append(topK, heap.Pop(t).(int))
+	topK = make([]int, len(*t))
+	for i := len(*t) - 1; i >= 0; i-- {
+		topK[i] = heap.Pop(t).(int)
 	}
 	return topK
 }
