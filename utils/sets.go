@@ -44,3 +44,11 @@ func (s StringSet) Has(value string) (has bool) {
 	_, has = s[value]
 	return
 }
+
+func (s StringSet) Copy() StringSet {
+	c := make(StringSet, len(s))
+	for k := range s {
+		c[k] = void
+	}
+	return c
+}
