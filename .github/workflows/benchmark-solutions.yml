@@ -1,13 +1,9 @@
-name: Check all solutions
+name: Benchmark all solutions
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
+on: workflow_dispatch
 
 jobs:
-
-  check:
+  benchmark:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,5 +11,5 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
-      - name: Test
-        run: go test ./...
+      - name: Benchmark
+        run: go test -run=^$ -bench=. -benchmem ./...
