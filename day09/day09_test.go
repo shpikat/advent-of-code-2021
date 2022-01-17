@@ -67,3 +67,29 @@ func TestPart2(t *testing.T) {
 		})
 	}
 }
+
+func Benchmark(b *testing.B) {
+	input := internal.ReadInput(b, "./testdata/input.txt")
+	parts := []struct {
+		name   string
+		fn     func(input string) (int, error)
+		answer int
+	}{
+		{"part1", part1, part1Answer},
+		{"part2", part2, part2Answer},
+	}
+
+	for _, part := range parts {
+		b.Run(part.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				got, err := part.fn(input)
+				if err != nil {
+					b.Errorf("error: %v", err)
+				}
+				if got != part.answer {
+					b.Errorf("got: %v, answer: %v", got, part.answer)
+				}
+			}
+		})
+	}
+}

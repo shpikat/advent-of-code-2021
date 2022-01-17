@@ -99,3 +99,30 @@ func TestPart2(t *testing.T) {
 		})
 	}
 }
+
+func Benchmark(b *testing.B) {
+	input := internal.ReadInput(b, "./testdata/input.txt")
+	// unrolling the "parts" loop as part2() function signature is different from usual
+	b.Run("part1", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got, err := part1(input)
+			if err != nil {
+				b.Errorf("error: %v", err)
+			}
+			if got != part1Answer {
+				b.Errorf("got: %v, answer: %v", got, part1Answer)
+			}
+		}
+	})
+	b.Run("part2", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got, err := part2(input)
+			if err != nil {
+				b.Errorf("error: %v", err)
+			}
+			if strings.TrimSpace(got) != strings.TrimSpace(part2Answer) {
+				b.Errorf("got: %v, answer: %v", got, part2Answer)
+			}
+		}
+	})
+}
