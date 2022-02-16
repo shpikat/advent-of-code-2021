@@ -46,7 +46,7 @@ func findLowestRiskPath(risks [][]int) (int, error) {
 					nextRisk := cumulativeRisks[current.row][current.column] + risks[row][column]
 					if cumulativeRisks[row][column] == undefined || nextRisk < cumulativeRisks[row][column] {
 						cumulativeRisks[row][column] = nextRisk
-						queue.UpdateOrAdd(Position{nextRisk, row, column})
+						heap.Push(&queue, Position{nextRisk, row, column})
 					}
 				}
 			}
