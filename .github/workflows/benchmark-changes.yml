@@ -1,0 +1,84 @@
+name: Benchstat the changes
+
+on:
+  pull_request:
+    types: [ labeled, opened, synchronize, reopened ]
+
+jobs:
+  changes:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Benchmark
+        run: go test -run=^$ -bench=. -benchmem ./... | tee -a changes.txt
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: changes
+          path: changes.txt
+  baseline:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Benchmark
+        run: go test -run=^$ -bench=. -benchmem ./... | tee -a baseline.txt
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: baseline
+          path: baseline.txt
+  benchstat:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
+    needs: [ changes, baseline ]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+      - name: Install benchstat
+        run: go install golang.org/x/perf/cmd/benchstat@latest
+      - name: Download result for changes
+        uses: actions/download-artifact@v2
+        with:
+          name: changes
+      - name: Download result for baseline
+        uses: actions/download-artifact@v2
+        with:
+          name: baseline
+      - name: Benchstat
+        run: |
+          echo "BENCHSTAT<<EOF" >> $GITHUB_ENV 
+          benchstat -sort delta baseline.txt changes.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `
+            <details><summary>Performance Result Comparison</summary>
+            
+            \`\`\`
+            ${{ env.BENCHSTAT }}
+            \`\`\`
+
+            </details>`
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
