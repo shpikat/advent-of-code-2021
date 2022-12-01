@@ -25,17 +25,17 @@ func part2(input string) (int, error) {
 
 type Caves map[string][]string
 
-func (c *Caves) AddConnection(name1 string, name2 string) {
-	cave1, exists := (*c)[name1]
+func (c Caves) AddConnection(name1 string, name2 string) {
+	cave1, exists := c[name1]
 	if !exists {
 		cave1 = make([]string, 0, 8)
 	}
-	cave2, exists := (*c)[name2]
+	cave2, exists := c[name2]
 	if !exists {
 		cave2 = make([]string, 0, 8)
 	}
-	(*c)[name1] = append(cave1, name2)
-	(*c)[name2] = append(cave2, name1)
+	c[name1] = append(cave1, name2)
+	c[name2] = append(cave2, name1)
 }
 
 func (c Caves) ExploreVisitingSmallOnce(visited utils.StringSet, name string) (count int) {

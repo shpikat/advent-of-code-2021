@@ -153,18 +153,18 @@ type Grid map[Cuboid]utils.Void
 
 var void utils.Void
 
-func (g *Grid) add(c Cuboid) {
-	(*g)[c] = void
+func (g Grid) add(c Cuboid) {
+	g[c] = void
 }
 
-func (g *Grid) remove(c Cuboid) {
-	delete(*g, c)
+func (g Grid) remove(c Cuboid) {
+	delete(g, c)
 }
 
-func (g *Grid) turnOn(cuboid Cuboid) {
+func (g Grid) turnOn(cuboid Cuboid) {
 	adding := make(Grid, 16)
 	adding.add(cuboid)
-	for c := range *g {
+	for c := range g {
 		// fast path is checking for covering cuboid
 		// some indexing like R-tree should be even faster, but this is fast enough
 		_, canPossiblyIntersect := c.intersect(cuboid)
@@ -193,9 +193,9 @@ func (g *Grid) turnOn(cuboid Cuboid) {
 	}
 }
 
-func (g *Grid) turnOff(cuboid Cuboid) {
+func (g Grid) turnOff(cuboid Cuboid) {
 	var remove, add []Cuboid
-	for c := range *g {
+	for c := range g {
 		intersection, intersects := c.intersect(cuboid)
 		if intersects {
 			remove = append(remove, c)
