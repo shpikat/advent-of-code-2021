@@ -6,8 +6,8 @@ type Coordinates map[Coordinate]utils.Void
 
 var void utils.Void
 
-func (s *Coordinates) Add(c Coordinate) {
-	(*s)[c] = void
+func (s Coordinates) Add(c Coordinate) {
+	s[c] = void
 }
 
 func (s Coordinates) Has(c Coordinate) (has bool) {

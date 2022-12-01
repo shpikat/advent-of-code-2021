@@ -82,8 +82,8 @@ type Velocities map[Velocity]utils.Void
 
 var void utils.Void
 
-func (s *Velocities) Add(x, y int) {
-	(*s)[Velocity{x, y}] = void
+func (s Velocities) Add(x, y int) {
+	s[Velocity{x, y}] = void
 }
 
 var pattern = regexp.MustCompile(`^target area: x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)$`)
